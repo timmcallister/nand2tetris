@@ -6,23 +6,23 @@
 /**
  * The Hack CPU (Central Processing unit), consisting of an ALU,
  * two registers named A and D, and a program counter named PC.
- * The CPU is designed to fetch and execute instructions written in 
+ * The CPU is designed to fetch and execute instructions written in
  * the Hack machine language. In particular, functions as follows:
- * Executes the inputted instruction according to the Hack machine 
+ * Executes the inputted instruction according to the Hack machine
  * language specification. The D and A in the language specification
  * refer to CPU-resident registers, while M refers to the external
- * memory location addressed by A, i.e. to Memory[A]. The inM input 
- * holds the value of this location. If the current instruction needs 
- * to write a value to M, the value is placed in outM, the address 
- * of the target location is placed in the addressM output, and the 
- * writeM control bit is asserted. (When writeM==0, any value may 
- * appear in outM). The outM and writeM outputs are combinational: 
- * they are affected instantaneously by the execution of the current 
- * instruction. The addressM and pc outputs are clocked: although they 
- * are affected by the execution of the current instruction, they commit 
- * to their new values only in the next time step. If reset==1 then the 
- * CPU jumps to address 0 (i.e. pc is set to 0 in next time step) rather 
- * than to the address resulting from executing the current instruction. 
+ * memory location addressed by A, i.e. to Memory[A]. The inM input
+ * holds the value of this location. If the current instruction needs
+ * to write a value to M, the value is placed in outM, the address
+ * of the target location is placed in the addressM output, and the
+ * writeM control bit is asserted. (When writeM==0, any value may
+ * appear in outM). The outM and writeM outputs are combinational:
+ * they are affected instantaneously by the execution of the current
+ * instruction. The addressM and pc outputs are clocked: although they
+ * are affected by the execution of the current instruction, they commit
+ * to their new values only in the next time step. If reset==1 then the
+ * CPU jumps to address 0 (i.e. pc is set to 0 in next time step) rather
+ * than to the address resulting from executing the current instruction.
  */
 
 CHIP CPU {
@@ -34,10 +34,41 @@ CHIP CPU {
                          // the current program (reset==0).
 
     OUT outM[16],        // M value output
-        writeM,          // Write to M? 
+        writeM,          // Write to M?
         addressM[15],    // Address in data memory (of M)
         pc[15];          // address of next instruction
 
     PARTS:
-    // Put your code here:
+    Mux16(a=false, b=instruction, sel=instruction[15],
+        out[0]=j3, out[1]=j2, out[2]=j1,
+        out[3]=writeM, out[4]=d2, out[5]=d1,    // d3 = writeM
+        out[6]=c6, out[7]=c5, out[8]=c4,
+        out[9]=c3, out[10]=c2, out[11]=c1,
+        out[12]=a,
+        out[13..15]=false);
+    Not(in=instruction[15], out=aInst);
+    Or(a=aInst, b=d1, out=orOut);
+    Mux16(a=instruction, b=ALUOut, sel=instruction[15], out=mux1Out); //Done
+    ARegister(in=mux1Out, load=orOut, out=aRegOut, out[0..14]=addressM); //
+    DRegister(in=ALUOut, load=d2, out=dRegOut);
+    Mux16(a=aRegOut,b=inM, sel=a, out=mux2Out);  // Done
+    ALU(x=dRegOut, y=mux2Out,
+        zx=c1, nx=c2,
+        zy=c3, ny=c4,
+        f=c5, no=c6,
+        zr=zr, ng=ng,
+        out=outM, out=ALUOut); // done
+
+    // jmp logic start
+    Mux(a=notNg, b=false, sel=zr, out=bandAid);
+    Not(in=ng, out=notNg);
+    And(a=ng, b=j1, out=jAnd1);
+    And(a=zr, b=j2, out=jAnd2);
+    And(a=bandAid, b=j3, out=jAnd3);
+    Or(a=jAnd1, b=jAnd2, out=jOr1);
+    Or(a=jOr1, b=jAnd3, out=jOr2);
+    DMux(in=true, sel=jOr2, a=inc1, b=load1);
+
+    PC(in=aRegOut, load=load1, inc=inc1, reset=reset, out[0..14]=pc);
+
 }
