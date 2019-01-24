@@ -1,20 +1,17 @@
 #! /usr/bin/python3
-import os, re
 
 class Parser:
     def __init__(self, inputFile):
         with open(inputFile + ".asm", 'r') as inFile:
             self.commandList = inFile.readlines()
-        # self.commandListSize = len(self.commandList)
         self.commandAddr = -1
         self.currentCommand = None
+        self.emptyLines = 0
 
     def stripComments(self):
         self.commandList = [ x[:x.index("//")] if "//" in x else x \
         for x in self.commandList]                                              # completely normal, self-documenting code
         self.commandList = ["".join(x.split()) for x in self.commandList]       # remove ALL white space
-        # self.commandList = list(filter(lambda x: x != '\n', self.commandList))      # remove empty elements
-        # self.commandListSize = len(self.commandList)                            # get new size
 
     def hasMoreCommands(self):
         try:
