@@ -1,7 +1,11 @@
 class Parser:
     def __init__(self, file_name, file_ext):
         with open(file_name + file_ext, 'r') as input_file:
-            self.commandList = input_file.readlines()
+            commandList = input_file.readlines()
+            commandList = [x[:x.index("//")] if "//" in x else x
+                           for x in commandList]
+            commandList = ["".join(x.split()) for x in commandList]
+            return commandList
 
     def hasMoreCommands(self, cmd_list, index):
         try:
@@ -12,7 +16,7 @@ class Parser:
             return True
 
     def advance(self, cmd_list, index):
-        return cmd_list[index + 1]        
+        return cmd_list[index + 1]
 
     def command_type(self, command_line):
         command = command_line.split(' ', 1)[0]
