@@ -1,25 +1,26 @@
 class Parser:
     def __init__(self, file_name, file_ext):
         with open(file_name + file_ext, 'r') as input_file:
-            commandList = input_file.readlines()
-            commandList = [x[:x.index("//")] if "//" in x else x
-                           for x in commandList]
-            commandList = ["".join(x.split()) for x in commandList]
-            return commandList
+            self.current_command = -1
+            self.command_list = input_file.readlines()
+            self.command_list = [x[:x.index("//")] if "//" in x else x
+                                 for x in self.command_list]
+            self.command_list = ["".join(x.split()) for x in self.command_list]
 
-    def hasMoreCommands(self, cmd_list, index):
+    def hasMoreCommands(self):
         try:
-            cmd_list[index + 1]
+            self.command_list[self.current_command + 1]
         except IndexError:
             return False
         else:
             return True
 
-    def advance(self, cmd_list, index):
-        return cmd_list[index + 1]
+    def advance(self):
+        self.current_command += 1
+        return self.command_list[self.current_command]
 
-    def command_type(self, command_line):
-        command = command_line.split(' ', 1)[0]
+    def command_type(self):
+        command = self.command_list[self.current_command].split(' ', 1)[0]
         _math_type_list = ["add", "sub", "neg", "eq",
                            "gt", "lt", "and", "or", "not"]
 
@@ -39,8 +40,11 @@ class Parser:
 
             return _cmd_type_list[command]
 
-    def arg1(self, command) -> str:
-        return command.split(' ')[1]
+    def arg1(self) -> str:
+        if self.command_type() == "C_ARITHMETIC":
+            return self.command_list[self.current_command].split(' ')[0]
+        else:
+            return self.command_list[self.current_command].split(' ')[1]
 
-    def arg2(self, command) -> int:
-        return command.split(' ')[2]
+    def arg2(self) -> int:
+        return self.command_list[self.current_command].split(' ')[2]

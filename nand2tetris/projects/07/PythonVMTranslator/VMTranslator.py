@@ -1,8 +1,12 @@
-import sys, os
+import os
+import sys
 from parser import Parser
 from codewriter import CodeWriter
 
+
 def main():
+
+    output_list = []
     if len(sys.argv) == 2:
         file_name = os.path.splitext(sys.argv[1])[0]
         file_ext = os.path.splitext(sys.argv[1])[1]
@@ -18,7 +22,15 @@ def main():
         print(e)
         return
     else:
-        pass
+        while parser.hasMoreCommands():
+            line = parser.advance()
+            if parser.command_type() != "C_RETURN":
+                argument1 = parser.arg1()
+            if parser.command_type() in ["C_POP", "C_PUSH", "C_FUNCTION",
+                                         "C_CALL"]:
+                argument2 = parser.arg2()
+            
+        writer.close()
 
 
 main()
