@@ -17,7 +17,7 @@ class Parser:
 
     def advance(self):
         self.current_command += 1
-        return self.command_list[self.current_command]
+        #return self.command_list[self.current_command]
 
     def command_type(self):
         command = self.command_list[self.current_command].split(' ', 1)[0]
