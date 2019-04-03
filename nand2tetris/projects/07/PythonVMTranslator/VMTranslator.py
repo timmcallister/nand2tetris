@@ -23,13 +23,17 @@ def main():
         return
     else:
         while parser.hasMoreCommands():
-            line = parser.advance()
+            parser.advance()
             if parser.command_type() != "C_RETURN":
                 argument1 = parser.arg1()
             if parser.command_type() in ["C_POP", "C_PUSH", "C_FUNCTION",
                                          "C_CALL"]:
                 argument2 = parser.arg2()
-            
+            if parser.command_type == "C_ARITHMETIC":
+                writer.write_arithmetic(argument1)
+            if parser.command_type() in ["C_POP", "C_PUSH"]:
+                writer.write_push_pop(parser.command_type(), argument1,
+                                      argument2)
         writer.close()
 
 
