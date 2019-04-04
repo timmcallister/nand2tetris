@@ -1,4 +1,4 @@
-@SP     //
+@SP     // lt
 AM=M-1
 D=M     // d is second operand
 A=A-1

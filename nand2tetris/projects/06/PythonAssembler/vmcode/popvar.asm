@@ -1,6 +1,6 @@
-@3
+@index
 D=A
-@SOMEVAR
+@segment
 A=D+A
 D=M
 @SP
