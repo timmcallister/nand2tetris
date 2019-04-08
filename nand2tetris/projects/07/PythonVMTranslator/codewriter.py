@@ -1,63 +1,145 @@
 class CodeWriter:
 
-    self.add_helper = {
-        "add": "M=D+M\n",
-        "sub": "M=D-M\n",
-        "and": "M=D&M\n",
-        "or":  "M=D|M\n"
-    }
-
-    self.eq_helper = {
-        "eq":  "D;JEQ\n",
-        "lt":  "D;JLT\n",
-        "gt":  "D;JGT\n"
-    }
-
-    self.not_helper = {
-        "neg": "M=-M\n",
-        "not": "M=!M\n"
-    }
-
-    self.label_number = 0
-
     def __init__(self, output_file_name):
         self.command_list = []
+        self.file = output_file_name.split("/")[-1]
         self.output_file = open(output_file_name + ".asm", 'w')
+        self.label_number = 0
+
+        self.pushd = [
+            "@SP",
+            "A=M",
+            "M=D",
+            "@SP",
+            "M=M+1"
+        ]
+
+        self.popd = [
+            "@SP",
+            "AM=M-1",
+            "A=M",
+            "A=A+D",
+            "D=A-D",
+            "A=A-D",
+            "M=D"
+        ]
+
+        self.binary_op = {
+            "add": "M=D+M",
+            "sub": "M=M-D",
+            "and": "M=D&M",
+            "or":  "M=D|M"
+        }
+
+        self.jump_op = {
+            "eq":  "D;JEQ",
+            "lt":  "D;JLT",
+            "gt":  "D;JGT"
+        }
+
+        self.unary_op = {
+            "neg": "M=-M",
+            "not": "M=!M"
+        }
+
+        self.latt = {
+            "local": "LCL",
+            "argument": "ARG",
+            "this": "THIS",
+            "that": "THAT"
+        }
+
+    def set_segment(self, cmd_type, segment, index):
+        line = []
+
+        if segment in self.latt:
+            segment = self.latt[segment]
+
+        if segment == "temp":
+            line = [
+                "@" + str(5 + int(index))
+            ]
+        elif segment == "constant":
+            line = [
+                "@" + index,
+                "D=A"
+            ]
+        elif segment == "static":
+            line = [
+                "@" + self.file + "." + index
+            ]
+        elif segment == "pointer":
+            if index == "0":
+                line = [
+                    "@THIS"
+                ]
+            else:
+                line = [
+                    "@THAT"
+                ]
+        else:
+            line = [
+                "@" + index,
+                "D=A",
+                "@" + segment,
+                "A=D+M"
+            ]
+        if cmd_type == "C_PUSH" and segment != "constant":
+            line.append("D=M")
+        elif cmd_type == "C_POP":
+            line.append("D=A")
+
+        return line
 
     def write_arithmetic(self, command):
-        self.command_list.append("@SP\nAM=M-1\n")
-        if command in ["add", "subtract", "and", "or"]:
-            self.command_list.append("D=M\nA=A-1\n")
-            self.command_list.append(self.add_helper[command] + "\n")
-        elif command in ["eq", "gt", "lt"]:
-            self.command_list.append("D=M\nA=A-1\nD=M-D\n@TRUE" +
-                                     self.label_number + "\n")
-            self.command_list.append(self.eq_helper[command] + "\n")
-            self.command_list.append("@SP\nA=M-1\nM=0\n@DONE" +
-                                     self.label_number + "\n")
-            self.command_list.append("0;JMP\n(TRUE" +
-                                     self.label_number + ")\n")
-            self.command_list.append("@SP\nA=M-1\nM=-1")
-            self.command_list.append("(DONE" + self.label_number + ")\n")
-        elif command in ["neg", "not"]:
-            self.command_list.append(self.not_helper[command] + "\n")
-
+        if command in self.unary_op:
+            lines = [
+                "@SP",
+                "AM=M-1",
+                self.unary_op[command],
+                "@SP",
+                "M=M+1"
+            ]
+        elif command in self.binary_op:
+            lines = [
+                "@SP",
+                "AM=M-1",
+                "D=M",
+                "A=A-1",
+                self.binary_op[command]
+            ]
+        else:
+            lines = [
+                "@SP",
+                "AM=M-1",
+                "D=M",
+                "A=A-1",
+                "D=M-D",
+                "@TRUE" + str(self.label_number),
+                self.jump_op[command],
+                "@SP",
+                "A=M-1",
+                "M=0",
+                "@DONE" + str(self.label_number),
+                "0;JMP",
+                "(TRUE" + str(self.label_number) + ")",
+                "@SP",
+                "A=M-1",
+                "M=-1",
+                "(DONE" + str(self.label_number) + ")"
+            ]
+        self.command_list.extend(lines)
         self.label_number += 1
 
     def write_push_pop(self, command, segment, index):
-        self.command_list.append("@" + index + "\n")
-        self.command_list.append("D=A\n@" + segment + "\n")
-        if command == "C_PUSH":
-            self.command_list.append("A=D+A\nD=M\n@SP\nA=M\nM=D\n@SP/nM=M+1")
-        elif command == "C_POP":
-            self.command_list("A=D+A\nD=M\n@SP\nM=M-1\n@SP\nA=M\nM=D")
+        lines = self.set_segment(command, segment, index)
+        if command == "C_POP":
+            lines.extend(self.popd)
+        else:
+            lines.extend(self.pushd)
+        self.command_list.extend(lines)
 
-        self.label_number += 1
-
-    def close(self, file_name):
-        self.output_file.writelines(self.command_list)
+    def close(self):
+        for line in self.command_list:
+            self.output_file.write("%s\n" % line)
         self.output_file.close()
-
-    # @classmethod
-    # def increment_label(cls):
-    #     cls.label_number += 1

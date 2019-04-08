@@ -9,7 +9,7 @@ def main():
 
     output_list = []
     if len(sys.argv) == 2:
-        file_name = os.path.splitext(sys.argv[1])[0]
+        file_name = str(os.path.splitext(sys.argv[1])[0])
         file_ext = os.path.splitext(sys.argv[1])[1]
 
     if len(sys.argv) != 2 or file_ext != ".vm":
@@ -25,15 +25,16 @@ def main():
     else:
         while parser.hasMoreCommands():
             parser.advance()
-            if parser.command_type() != "C_RETURN":
+            cmd = parser.command_type()
+            if cmd != "C_RETURN":
                 argument1 = parser.arg1()
-            if parser.command_type() in ["C_POP", "C_PUSH", "C_FUNCTION",
-                                         "C_CALL"]:
+            if cmd in ["C_POP", "C_PUSH", "C_FUNCTION",
+                       "C_CALL"]:
                 argument2 = parser.arg2()
-            if parser.command_type == "C_ARITHMETIC":
+            if cmd == "C_ARITHMETIC":
                 writer.write_arithmetic(argument1)
-            if parser.command_type() in ["C_POP", "C_PUSH"]:
-                writer.write_push_pop(parser.command_type(), argument1,
+            if cmd in ["C_POP", "C_PUSH"]:
+                writer.write_push_pop(cmd, argument1,
                                       argument2)
         writer.close()
 

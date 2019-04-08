@@ -5,7 +5,9 @@ class Parser:
             self.command_list = input_file.readlines()
             self.command_list = [x[:x.index("//")] if "//" in x else x
                                  for x in self.command_list]
-            self.command_list = ["".join(x.split()) for x in self.command_list]
+            self.command_list = [x.strip() for x in self.command_list]
+            self.command_list = list(filter(lambda x: x != '',
+                                            self.command_list))
 
     def hasMoreCommands(self):
         try:
@@ -17,7 +19,6 @@ class Parser:
 
     def advance(self):
         self.current_command += 1
-        # return self.command_list[self.current_command]
 
     def command_type(self):
         command = self.command_list[self.current_command].split(' ', 1)[0]
@@ -40,11 +41,11 @@ class Parser:
 
             return _cmd_type_list[command]
 
-    def arg1(self) -> str:
+    def arg1(self):
         if self.command_type() == "C_ARITHMETIC":
             return self.command_list[self.current_command].split(' ')[0]
         else:
             return self.command_list[self.current_command].split(' ')[1]
 
-    def arg2(self) -> int:
+    def arg2(self):
         return self.command_list[self.current_command].split(' ')[2]

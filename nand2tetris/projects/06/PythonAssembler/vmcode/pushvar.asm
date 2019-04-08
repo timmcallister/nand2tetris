@@ -1,7 +1,7 @@
-@index
+@2		// index
 D=A
-@segment
-A=D+A
+@10		// segment
+A=D+A 		// *** DIFFERENT
 D=M
 @SP
 A=M
