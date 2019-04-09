@@ -143,3 +143,38 @@ class CodeWriter:
         for line in self.command_list:
             self.output_file.write("%s\n" % line)
         self.output_file.close()
+
+    def set_file_name(self, file_name):
+        # informs the codewriter that the translation of a new VM file has started
+        # called by the main program of the VM translator
+        pass
+
+    def write_init(self):
+        # writes the assembly instructions that effect the bootstrap code
+        # that initializes the VM, this code must be placed at the beginning
+        # of the .asm file
+        pass
+
+    def write_label(self, label):
+        # writes the assembly code that effects the label command
+        pass
+
+    def write_goto(self, label):
+        # writes the assembly code that effects the goto command
+        pass
+
+    def write_if(self, label):
+        # writes the assembly code that effects the if-goto command
+        pass
+
+    def write_function(self, function_name, n_vars):
+        # writes the assembly code that effects the function command
+        pass
+
+    def write_call(self, function_name, n_args):
+        # writes the assembly code that effects the call command
+        pass
+    
+    def write_return(self):
+        # writes the assembly code that effects the return command
+        pass
