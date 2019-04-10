@@ -7,7 +7,6 @@ from codewriter import CodeWriter
 
 def main():
 
-    output_list = []
     if len(sys.argv) == 2:
         file_name = str(os.path.splitext(sys.argv[1])[0])
         file_ext = os.path.splitext(sys.argv[1])[1]
@@ -33,9 +32,15 @@ def main():
                 argument2 = parser.arg2()
             if cmd == "C_ARITHMETIC":
                 writer.write_arithmetic(argument1)
-            if cmd in ["C_POP", "C_PUSH"]:
+            elif cmd in ["C_POP", "C_PUSH"]:
                 writer.write_push_pop(cmd, argument1,
                                       argument2)
+            elif cmd == "C_LABEL":
+                writer.write_label(argument1)
+            elif cmd == "C_GOTO":
+                writer.write_goto(argument1)
+            elif cmd == "C_IF":
+                writer.write_if(argument1)
         writer.close()
 
 

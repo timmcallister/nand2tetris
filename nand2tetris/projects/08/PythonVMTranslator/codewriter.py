@@ -170,7 +170,6 @@ class CodeWriter:
             "@" + self.label_prefix + "$" + label,
             "0;JMP"
         ]
-
         self.command_list.extend(lines)
 
     def write_if(self, label):
@@ -181,7 +180,6 @@ class CodeWriter:
              "@" + self.label_prefix + "$" + label,
              "D;JNE"
          ]
-
          self.command_list.extend(lines)
 
     def write_function(self, function_name, n_vars):
