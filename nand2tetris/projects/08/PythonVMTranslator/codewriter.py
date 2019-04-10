@@ -4,7 +4,8 @@ class CodeWriter:
         self.command_list = []
         self.file = output_file_name.split("/")[-1]
         self.output_file = open(output_file_name + ".asm", 'w')
-        self.label_number = 0
+        self.rel_label_num = 0
+        self.label_prefix = ''
 
         self.pushd = [
             "@SP",
@@ -115,21 +116,21 @@ class CodeWriter:
                 "D=M",
                 "A=A-1",
                 "D=M-D",
-                "@TRUE" + str(self.label_number),
+                "@TRUE" + str(self.rel_label_num),
                 self.jump_op[command],
                 "@SP",
                 "A=M-1",
                 "M=0",
-                "@DONE" + str(self.label_number),
+                "@DONE" + str(self.rel_label_num),
                 "0;JMP",
-                "(TRUE" + str(self.label_number) + ")",
+                "(TRUE" + str(self.rel_label_num) + ")",
                 "@SP",
                 "A=M-1",
                 "M=-1",
-                "(DONE" + str(self.label_number) + ")"
+                "(DONE" + str(self.rel_label_num) + ")"
             ]
         self.command_list.extend(lines)
-        self.label_number += 1
+        self.rel_label_num += 1
 
     def write_push_pop(self, command, segment, index):
         lines = self.set_segment(command, segment, index)
@@ -153,19 +154,35 @@ class CodeWriter:
         # writes the assembly instructions that effect the bootstrap code
         # that initializes the VM, this code must be placed at the beginning
         # of the .asm file
-        pass
+        lines = [
+            "@256",
+            "D=A",
+            "@0",
+            "M=D"
+        ]
+        self.command_list.extend(lines)
 
     def write_label(self, label):
-        # writes the assembly code that effects the label command
-        pass
+        self.command_list.append("(" + self.label_prefix + "$" + label + ")")
 
     def write_goto(self, label):
-        # writes the assembly code that effects the goto command
-        pass
+        lines = [
+            "@" + self.label_prefix + "$" + label,
+            "0;JMP"
+        ]
+
+        self.command_list.extend(lines)
 
     def write_if(self, label):
-        # writes the assembly code that effects the if-goto command
-        pass
+         lines = [
+             "@SP",
+             "AM=M-1",
+             "D=M",
+             "@" + self.label_prefix + "$" + label,
+             "D;JNE"
+         ]
+
+         self.command_list.extend(lines)
 
     def write_function(self, function_name, n_vars):
         # writes the assembly code that effects the function command
