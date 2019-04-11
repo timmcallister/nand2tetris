@@ -230,4 +230,40 @@ class CodeWriter:
         self.write_label(return_addr)
     
     def write_return(self):
-        pass
+        FRAME = "R13"
+        RET = "R14"
+
+        lines =[
+            "@LCL",
+            "D=A",
+            "@" + FRAME,
+            "AM=D",
+            "@5",
+            "D=A-D",
+            "@" + RET,
+            "M=D",
+            "@SP",
+            "AM=M-1",
+            "D=M",
+            "@ARG",
+            "A=M",
+            "M=D",
+            "@ARG",
+            "D=M+1",
+            "@SP",
+            "M=D",
+            "@" + FRAME,
+            "A=M",
+            "@THAT",
+            "MD=D-1",
+            "@THIS",
+            "MD=D-1",
+            "@ARG",
+            "MD=D-1",
+            "@LCL",
+            "MD=D-1",
+            "@" + RET,
+            "0;JMP"
+        ]
+
+        self.command_list.extend(lines)
