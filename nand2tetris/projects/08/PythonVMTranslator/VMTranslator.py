@@ -19,7 +19,8 @@ def main():
             for f in os.listdir(file_name):
                 if f.endswith(".vm"):
                     file_list.append(f)
-
+        else:
+            file_list.append(sys.argv[1])
     if arg_len == 1 and not file_list:
         print("Current directory contains no .vm files")
         return
@@ -28,9 +29,6 @@ def main():
         return
     elif arg_len == 2 and is_dir and not file_list:
         print(file_name + " directory contains no .vm files")
-        return
-    else:
-        print("Usage: translator.py [<inputFile.vm>|directoryPath]")
         return
     try:
         writer = CodeWriter(file_name)
