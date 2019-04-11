@@ -158,7 +158,7 @@ class CodeWriter:
         self.output_file.close()
 
     def set_file_name(self, file_name):
-        self.label_prefix = file_name
+        self.label_prefix = file_name.split("/")[-1]
 
     def write_init(self):
         lines = [
