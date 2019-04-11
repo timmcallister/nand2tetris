@@ -92,6 +92,18 @@ class CodeWriter:
 
         return line
 
+    def push_str(self, push_string):
+        line = [
+            "@" + push_string,
+            "D=A",
+            "@SP",
+            "A=M",
+            "M=D",
+            "@SP",
+            "M=M+1"
+        ]
+        self.command_list.extend(line)
+
     def write_arithmetic(self, command):
         if command in self.unary_op:
             lines = [
@@ -146,24 +158,20 @@ class CodeWriter:
         self.output_file.close()
 
     def set_file_name(self, file_name):
-        # informs the codewriter that the translation of a new VM file has started
-        # called by the main program of the VM translator
-        pass
+        self.label_prefix = file_name
 
     def write_init(self):
-        # writes the assembly instructions that effect the bootstrap code
-        # that initializes the VM, this code must be placed at the beginning
-        # of the .asm file
         lines = [
             "@256",
             "D=A",
             "@0",
             "M=D"
         ]
+        self.write_call("Sys.init", 0)
         self.command_list.extend(lines)
 
     def write_label(self, label):
-        self.command_list.append("(" + self.label_prefix + "$" + label + ")")
+        self.command_list.append("(" + label + ")")
 
     def write_goto(self, label):
         lines = [
@@ -183,13 +191,43 @@ class CodeWriter:
          self.command_list.extend(lines)
 
     def write_function(self, function_name, n_vars):
-        # writes the assembly code that effects the function command
-        pass
+        self.write_label(self.label_prefix + function_name)
+        for _ in range(n_vars):
+            lines = [
+                "@0",
+                "D=A",
+                "@SP",
+                "A=M",
+                "M=D",
+                "@SP",
+                "M=M+1"
+            ]
+            self.command_list.extend(lines)
 
     def write_call(self, function_name, n_args):
-        # writes the assembly code that effects the call command
-        pass
+        return_addr = self.label_prefix + "." + function_name + "$return"
+        self.push_str(return_addr)
+        self.push_str("LCL")
+        self.push_str("ARG")
+        self.push_str("THIS")
+        self.push_str("THAT")
+        lines = [
+            "@SP",
+            "D=M",
+            "@" + str(n_args),
+            "D=D-M",
+            "@5",
+            "D=D-A",
+            "@ARG",
+            "M=D",
+            "@SP",
+            "D=M",
+            "@LCL",
+            "M=D"
+        ]
+        self.command_list.extend(lines)
+        self.write_goto(function_name)
+        self.write_label(return_addr)
     
     def write_return(self):
-        # writes the assembly code that effects the return command
         pass
