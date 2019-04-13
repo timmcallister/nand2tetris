@@ -1,6 +1,6 @@
 class Parser:
-    def __init__(self, file_name, file_ext):
-        with open(file_name + file_ext, 'r') as input_file:
+    def __init__(self, file_name):
+        with open(file_name, 'r') as input_file:
             self.current_command = -1
             self.command_list = input_file.readlines()
             self.command_list = [x[:x.index("//")] if "//" in x else x

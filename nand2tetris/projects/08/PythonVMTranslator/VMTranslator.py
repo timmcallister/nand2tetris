@@ -7,11 +7,11 @@ from codewriter import CodeWriter
 
 def main():
     arg_len = len(sys.argv)
+    file_list = []
 
     if arg_len == 1:
         file_name = os.getcwd()
     elif arg_len == 2:
-        file_list = []
         is_dir = os.path.isdir(sys.argv[1])
         file_name = os.path.splitext(sys.argv[1])[0]
         file_ext = os.path.splitext(sys.argv[1])[1]
@@ -19,6 +19,7 @@ def main():
             for f in os.listdir(file_name):
                 if f.endswith(".vm"):
                     file_list.append(f)
+                    file_name = file_name + os.path.basename(os.path.dirname(file_name)) 
         else:
             file_list.append(sys.argv[1])
     if arg_len == 1 and not file_list:
@@ -28,7 +29,7 @@ def main():
         print("Usage: translator.py <inputFile>.vm")
         return
     elif arg_len == 2 and is_dir and not file_list:
-        print(file_name + " directory contains no .vm files")
+        print("Directory contains no .vm files")
         return
     try:
         writer = CodeWriter(file_name)
@@ -38,12 +39,14 @@ def main():
         return
     else:
         try:
-            parsers = [Parser(os.path.splitext(f)[0], os.path.splitext(f)[1]) for f in file_list]
+            file_list = [sys.argv[1] + f for f in file_list]
+            parsers = [Parser(f) for f in file_list]
         except IOError as e:
             print("In parsers: ")
             print(e)
             return
         else:
+            writer.write_init()
             for p in parsers:
                 writer.set_file_name(file_name)
                 while p.hasMoreCommands():
