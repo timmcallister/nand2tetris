@@ -33,12 +33,14 @@ def main():
     try:
         writer = CodeWriter(file_name)
     except IOError as e:
+        print("In codewriter: ")
         print(e)
         return
     else:
         try:
             parsers = [Parser(os.path.splitext(f)[0], os.path.splitext(f)[1]) for f in file_list]
         except IOError as e:
+            print("In parsers: ")
             print(e)
             return
         else:
@@ -63,6 +65,12 @@ def main():
                         writer.write_goto(argument1)
                     elif cmd == "C_IF":
                         writer.write_if(argument1)
+                    elif cmd == "C_FUNCTION":
+                        writer.write_function(argument1, int(argument2))
+                    elif cmd == "C_CALL":
+                        writer.write_call(argument1, argument2)
+                    elif cmd == "C_RETURN":
+                        writer.write_return()
         writer.close()
 
 

@@ -93,16 +93,16 @@ class CodeWriter:
         return line
 
     def push_str(self, push_string):
-        line = [
+        lines = [
             "@" + push_string,
-            "D=A",
+            "D=M",
             "@SP",
             "A=M",
             "M=D",
             "@SP",
             "M=M+1"
         ]
-        self.command_list.extend(line)
+        self.command_list.extend(lines)
 
     def write_arithmetic(self, command):
         if command in self.unary_op:
@@ -158,7 +158,7 @@ class CodeWriter:
         self.output_file.close()
 
     def set_file_name(self, file_name):
-        self.label_prefix = file_name.split("/")[-1]
+        self.file_name = file_name.split("/")[-1]
 
     def write_init(self):
         lines = [
@@ -171,7 +171,7 @@ class CodeWriter:
         self.command_list.extend(lines)
 
     def write_label(self, label):
-        self.command_list.append("(" + label + ")")
+        self.command_list.append("(" + self.label_prefix + "$" + label + ")")
 
     def write_goto(self, label):
         lines = [
@@ -191,21 +191,13 @@ class CodeWriter:
          self.command_list.extend(lines)
 
     def write_function(self, function_name, n_vars):
-        self.write_label(self.label_prefix + function_name)
+        self.command_list.append("(" + function_name + ")")
+        self.label_prefix = function_name
         for _ in range(n_vars):
-            lines = [
-                "@0",
-                "D=A",
-                "@SP",
-                "A=M",
-                "M=D",
-                "@SP",
-                "M=M+1"
-            ]
-            self.command_list.extend(lines)
+            self.write_push_pop("C_PUSH", "constant", '0')
 
     def write_call(self, function_name, n_args):
-        return_addr = self.label_prefix + "." + function_name + "$return"
+        return_addr = "$return" + str(self.rel_label_num)
         self.push_str(return_addr)
         self.push_str("LCL")
         self.push_str("ARG")
@@ -223,23 +215,25 @@ class CodeWriter:
             "@SP",
             "D=M",
             "@LCL",
-            "M=D"
+            "M=D",
+            "@" + function_name,
+            "0;JMP"
         ]
         self.command_list.extend(lines)
-        self.write_goto(function_name)
-        self.write_label(return_addr)
+        self.command_list.append("$return" + str(self.rel_label_num))
+        self.rel_label_num += 1
     
     def write_return(self):
         FRAME = "R13"
         RET = "R14"
 
         lines =[
-            "@LCL",
-            "D=A",
+            "@LCL",                     # frame = lcl
+            "D=M",
             "@" + FRAME,
-            "AM=D",
-            "@5",
-            "D=A-D",
+            "M=D",                  
+            "@5",                       # ret = *(frame - 5)
+            "D=D-A",
             "@" + RET,
             "M=D",
             "@SP",
@@ -253,16 +247,27 @@ class CodeWriter:
             "@SP",
             "M=D",
             "@" + FRAME,
-            "A=M",
+            "AM=M-1",
+            "D=M",
             "@THAT",
-            "MD=D-1",
+            "M=D",
+            "@" + FRAME,
+            "AM=M-1",
+            "D=M",
             "@THIS",
-            "MD=D-1",
+            "M=D",
+            "@" + FRAME,
+            "AM=M-1",
+            "D=M",
             "@ARG",
-            "MD=D-1",
+            "M=D",
+            "@" + FRAME,
+            "AM=M-1",
+            "D=M",
             "@LCL",
-            "MD=D-1",
+            "M=D",
             "@" + RET,
+            "A=M",
             "0;JMP"
         ]
 
