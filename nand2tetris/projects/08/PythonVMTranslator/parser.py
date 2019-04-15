@@ -1,5 +1,8 @@
+import os
 class Parser:
     def __init__(self, file_name):
+        self.static_name = os.path.splitext(file_name)[0]
+        self.static_name = self.static_name.split('/')[-1]
         with open(file_name, 'r') as input_file:
             self.current_command = -1
             self.command_list = input_file.readlines()

@@ -53,7 +53,7 @@ def main():
         else:
             writer.write_init()
             for p in parsers:
-                writer.set_file_name("TODO")
+                writer.set_file_name(p.static_name)
                 while p.hasMoreCommands():
                     p.advance()
                     cmd = p.command_type()

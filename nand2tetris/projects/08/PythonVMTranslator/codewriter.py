@@ -67,7 +67,7 @@ class CodeWriter:
             ]
         elif segment == "static":
             line = [
-                "@" + self.file + "." + index
+                "@" + self.file_name + "." + index,
             ]
         elif segment == "pointer":
             if index == "0":
@@ -157,9 +157,9 @@ class CodeWriter:
             self.output_file.write("%s\n" % line)
         self.output_file.close()
 
-    def set_file_name(self, file_name):
-        self.file_name = file_name.split("/")[-1]
-
+    def set_file_name(self, s_name):
+        self.file_name = s_name
+        
     def write_init(self):
         lines = [
             "@256",
