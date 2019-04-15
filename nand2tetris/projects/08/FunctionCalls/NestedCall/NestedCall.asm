@@ -1,5 +1,9 @@
+@256
+D=A
+@0
+M=D
 @$return0
-D=M
+D=A
 @SP
 A=M
 M=D
@@ -36,7 +40,7 @@ M=M+1
 @SP
 D=M
 @0
-D=D-M
+D=D-A
 @5
 D=D-A
 @ARG
@@ -47,11 +51,7 @@ D=M
 M=D
 @Sys.init
 0;JMP
-$return0
-@256
-D=A
-@0
-M=D
+($return0)
 (Sys.init)
 @4000
 D=A
@@ -86,7 +86,7 @@ D=A-D
 A=A-D
 M=D
 @$return1
-D=M
+D=A
 @SP
 A=M
 M=D
@@ -123,7 +123,7 @@ M=M+1
 @SP
 D=M
 @0
-D=D-M
+D=D-A
 @5
 D=D-A
 @ARG
@@ -134,7 +134,7 @@ D=M
 M=D
 @Sys.main
 0;JMP
-$return1
+($return1)
 @6
 D=A
 @SP
@@ -280,7 +280,7 @@ M=D
 @SP
 M=M+1
 @$return2
-D=M
+D=A
 @SP
 A=M
 M=D
@@ -317,7 +317,7 @@ M=M+1
 @SP
 D=M
 @1
-D=D-M
+D=D-A
 @5
 D=D-A
 @ARG
@@ -328,7 +328,7 @@ D=M
 M=D
 @Sys.add12
 0;JMP
-$return2
+($return2)
 @5
 D=A
 @SP
@@ -413,7 +413,8 @@ D=M
 @R13
 M=D
 @5
-D=D-A
+A=D-A
+D=M
 @R14
 M=D
 @SP
@@ -509,7 +510,8 @@ D=M
 @R13
 M=D
 @5
-D=D-A
+A=D-A
+D=M
 @R14
 M=D
 @SP

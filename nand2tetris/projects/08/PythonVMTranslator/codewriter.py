@@ -3,7 +3,7 @@ class CodeWriter:
     def __init__(self, output_file_name):
         self.command_list = []
         self.file = output_file_name.split("/")[-1]
-        self.output_file = open(output_file_name + ".asm", 'w')
+        self.output_file = open(output_file_name, 'w')
         self.rel_label_num = 0
         self.label_prefix = ''
 
@@ -167,8 +167,8 @@ class CodeWriter:
             "@0",
             "M=D"
         ]
-        self.write_call("Sys.init", 0)
         self.command_list.extend(lines)
+        self.write_call("Sys.init", 0)
 
     def write_label(self, label):
         self.command_list.append("(" + self.label_prefix + "$" + label + ")")
@@ -198,7 +198,11 @@ class CodeWriter:
 
     def write_call(self, function_name, n_args):
         return_addr = "$return" + str(self.rel_label_num)
-        self.push_str(return_addr)
+        self.command_list.extend([
+            "@" + return_addr,
+            "D=A"
+        ])
+        self.command_list.extend(self.pushd)
         self.push_str("LCL")
         self.push_str("ARG")
         self.push_str("THIS")
@@ -207,7 +211,7 @@ class CodeWriter:
             "@SP",
             "D=M",
             "@" + str(n_args),
-            "D=D-M",
+            "D=D-A",
             "@5",
             "D=D-A",
             "@ARG",
@@ -220,7 +224,7 @@ class CodeWriter:
             "0;JMP"
         ]
         self.command_list.extend(lines)
-        self.command_list.append("$return" + str(self.rel_label_num))
+        self.command_list.append("($return" + str(self.rel_label_num) + ")")
         self.rel_label_num += 1
     
     def write_return(self):
@@ -228,12 +232,13 @@ class CodeWriter:
         RET = "R14"
 
         lines =[
-            "@LCL",                     # frame = lcl
+            "@LCL",
             "D=M",
             "@" + FRAME,
-            "M=D",                  
-            "@5",                       # ret = *(frame - 5)
-            "D=D-A",
+            "M=D",
+            "@5",                       
+            "A=D-A",
+            "D=M",
             "@" + RET,
             "M=D",
             "@SP",

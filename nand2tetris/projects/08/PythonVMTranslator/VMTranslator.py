@@ -8,38 +8,43 @@ from codewriter import CodeWriter
 def main():
     arg_len = len(sys.argv)
     file_list = []
+    output_file = ""
+    parsers = []
 
     if arg_len == 1:
-        file_name = os.getcwd()
+        dir_name = os.getcwd()
+        output_file = dir_name + '/' + dir_name.split('/')[-1] + ".asm"
+        for f in os.listdir(dir_name):
+            if f.endswith(".vm"):
+                file_list.append(f)
+        if not file_list:
+            print("Error, no .vm files in current directory")
+            return
     elif arg_len == 2:
-        is_dir = os.path.isdir(sys.argv[1])
-        file_name = os.path.splitext(sys.argv[1])[0]
-        file_ext = os.path.splitext(sys.argv[1])[1]
-        if is_dir:
-            for f in os.listdir(file_name):
+        if os.path.isdir(sys.argv[1]):
+            output_file = sys.argv[1] + sys.argv[1].split('/')[-2] + ".asm"
+            for f in os.listdir(sys.argv[1]):
                 if f.endswith(".vm"):
                     file_list.append(f)
-                    file_name = file_name + os.path.basename(os.path.dirname(file_name)) 
+            if not file_list:
+                print("Error, no .vm files in given directory")
+                return
+            file_list = [sys.argv[1] + "/" + f for f in file_list]
         else:
-            file_list.append(sys.argv[1])
-    if arg_len == 1 and not file_list:
-        print("Current directory contains no .vm files")
-        return
-    elif arg_len == 2 and file_ext != ".vm" and not is_dir:
-        print("Usage: translator.py <inputFile>.vm")
-        return
-    elif arg_len == 2 and is_dir and not file_list:
-        print("Directory contains no .vm files")
-        return
+            if os.path.splitext(sys.argv[1])[1] != ".vm":
+                print("Error, .vm file not specified")
+                return
+            else:
+                file_list.append(sys.argv[1])
+                output_file = os.path.splitext(sys.argv[1])[0] + ".asm"
     try:
-        writer = CodeWriter(file_name)
+        writer = CodeWriter(output_file)
     except IOError as e:
         print("In codewriter: ")
         print(e)
         return
     else:
         try:
-            file_list = [sys.argv[1] + f for f in file_list]
             parsers = [Parser(f) for f in file_list]
         except IOError as e:
             print("In parsers: ")
@@ -48,7 +53,7 @@ def main():
         else:
             writer.write_init()
             for p in parsers:
-                writer.set_file_name(file_name)
+                writer.set_file_name("TODO")
                 while p.hasMoreCommands():
                     p.advance()
                     cmd = p.command_type()
