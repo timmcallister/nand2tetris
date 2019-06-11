@@ -1,0 +1,11 @@
+// Driver for the game. Creates, runs, and deallocates.
+class Main {
+    function void main() {
+        var BallBounceGame game;
+        let game = BallBounceGame.new();
+        do game.run();
+        do game.dispose();
+        return;
+
+    }
+}

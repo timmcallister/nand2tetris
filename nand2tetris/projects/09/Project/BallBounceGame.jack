@@ -1,0 +1,47 @@
+class BallBounceGame {
+    field Ball ball;
+
+
+    constructor BallBounceGame new(){
+        let ball = Ball.new(100, 100);
+        return this;
+    }
+
+    method void run () {
+        var int rad;
+        var char input;
+        var boolean exit;
+
+        let exit = false;
+
+        while (~exit){
+            while(input = 0){
+                let input = Keyboard.keyPressed();
+                do ball.move();
+                do Sys.wait(100);
+            }
+
+            if (input = 81)  { let exit = true; }     // q key
+            if (input = 90)  { do ball.bigger(); } // z key
+            if (input = 88)  { do ball.smaller(); } // x key
+            if (input = 131) { do ball.decreaseYSpeed(); }   // up arrow
+            if (input = 133) { do ball.increaseYSpeed(); }   // down arrow
+            if (input = 130) { do ball.decreaseXSpeed(); }   // left arrow
+            if (input = 132) { do ball.increaseXSpeed(); }   // right arrow
+
+            while(~(input=0)) {
+                let input = Keyboard.keyPressed();
+                do ball.move();
+                do Sys.wait(100);
+            }
+        }
+
+        return;
+    }
+
+    method void dispose() {
+        do ball.dispose();
+        do Memory.deAlloc(this);
+        return;
+    }
+}

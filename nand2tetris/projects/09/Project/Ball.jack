@@ -1,0 +1,115 @@
+class Ball {
+    field int x, y;
+    field int radius;
+    field int xSpeed, ySpeed;
+
+    constructor Ball new(int Ax, int Ay) {
+        let x = Ax;
+        let y = Ay;
+        let xSpeed = 0;
+        let ySpeed = 0;
+        let radius = 5;
+        do draw();
+        return this;
+    }
+
+    method void dispose() {
+        do Memory.deAlloc(this);
+        return;
+    }
+
+    method void draw() {
+        do Screen.setColor(true);
+        do Screen.drawCircle(x, y, radius);
+        return;
+    }
+
+    method void erase() {
+        do Screen.setColor(false);
+        do Screen.drawCircle(x, y, radius);
+        return;
+    }
+
+    method void bigger() {
+        if (radius < 30) {
+            let radius = radius + 1;
+        }
+        return;
+    }
+
+    method void smaller() {
+        do erase();
+        if (radius > 2) {
+            let radius = radius - 1;
+        }
+        return;
+    }
+
+    method void increaseYSpeed() {
+        if (ySpeed < 30) {
+            let ySpeed = ySpeed + 1;
+        }
+        return;
+    }
+
+    method void decreaseYSpeed() {
+        if (ySpeed > -30) {
+            let ySpeed = ySpeed - 1;
+        }
+        return;
+    }
+
+    method void increaseXSpeed() {
+        if (xSpeed < 30) {
+            let xSpeed = xSpeed + 1;
+        }
+        return;
+    }
+
+    method void decreaseXSpeed() {
+        if (xSpeed > -30) {
+            let xSpeed = xSpeed - 1;
+        }
+        return;
+    }
+
+    method void move() {
+        do erase();
+
+        // right side of screen
+        if ((x + radius + xSpeed) > 511) { 
+            let x = (511 - radius) - (x + xSpeed + radius - 511);
+            let xSpeed = -xSpeed;
+        }
+        // left side of screen
+        else { 
+            if ((x - radius + xSpeed) < 1) {
+                let x = (-(x - radius + xSpeed) + radius);
+                let xSpeed = -xSpeed;
+            }
+            else {
+                let x = x + xSpeed;
+            }
+        }
+
+        // bottom of screen
+        if ((y + radius + ySpeed) > 253) {
+            let y = (253 - radius) - (y + ySpeed + radius - 253);
+            let ySpeed = -ySpeed;
+        }
+        // top of screen
+        else {
+            if ((y - radius + ySpeed) < 1) {
+                let y = (-(y - radius + ySpeed) + radius);
+                let ySpeed = -ySpeed;
+            }
+            else {
+                let y = y + ySpeed;
+            }
+        }
+        do draw();
+        
+
+        return;
+    }
+}
