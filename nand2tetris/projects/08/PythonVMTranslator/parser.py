@@ -1,4 +1,6 @@
 import os
+
+
 class Parser:
     def __init__(self, file_name):
         self.static_name = os.path.splitext(file_name)[0]

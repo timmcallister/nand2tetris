@@ -60,13 +60,13 @@ def main():
                     if cmd != "C_RETURN":
                         argument1 = p.arg1()
                     if cmd in ["C_POP", "C_PUSH", "C_FUNCTION",
-                            "C_CALL"]:
+                               "C_CALL"]:
                         argument2 = p.arg2()
                     if cmd == "C_ARITHMETIC":
                         writer.write_arithmetic(argument1)
                     elif cmd in ["C_POP", "C_PUSH"]:
                         writer.write_push_pop(cmd, argument1,
-                                            argument2)
+                                              argument2)
                     elif cmd == "C_LABEL":
                         writer.write_label(argument1)
                     elif cmd == "C_GOTO":
